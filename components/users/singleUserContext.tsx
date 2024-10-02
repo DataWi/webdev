@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "./usersList";
 import Users from "../../assets/users.json";
 import { useRouter, usePathname } from "next/navigation";
@@ -14,6 +14,8 @@ const UserContext = createContext<UserContextType>({
   findUser: () => {},
   isLoading: false,
 });
+
+const fallBackUser = Users[0];
 
 const UserContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -37,11 +39,14 @@ const UserContextProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(false);
       console.log("User not found");
       router.push("/404");
+      return;
     }
 
-    setUser(result || null);
+    setUser(result);
     setIsLoading(false);
   };
+
+  useEffect(() => findUser(), [pathname]);
 
   return (
     <UserContext.Provider value={{ user, findUser, isLoading }}>

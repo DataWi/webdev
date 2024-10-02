@@ -20,18 +20,16 @@ export const Layout = ({ children }: LayoutProps) => {
   return (
     // make container full width
 
-    <UserContextProvider>
-      <CartProvider>
-        <Container
-          fluid
-          className='p-0 d-flex flex-column overflow-hidden min-vh-100'>
-          <Header />
-          {children}
-          <div className='flex-grow-1' />
-          <Footer />
-        </Container>
-      </CartProvider>
-    </UserContextProvider>
+    <CartProvider>
+      <Container
+        fluid
+        className='p-0 d-flex flex-column overflow-hidden min-vh-100'>
+        <Header />
+        {children}
+        <div className='flex-grow-1' />
+        <Footer />
+      </Container>
+    </CartProvider>
   );
 };
 
