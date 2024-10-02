@@ -3,6 +3,7 @@
     "courseId": 1,
     "userId": 1,
     "lastOpened": 2,
+    "progress": 0.5,
     "sections": [
       {
         "sectionName": "Introduction",
@@ -46,6 +47,7 @@
     "courseId": 2,
     "userId": 1,
     "lastOpened": 1,
+    "progress": 0.2,
     "sections": [
       {
         "sectionName": "Introduction",

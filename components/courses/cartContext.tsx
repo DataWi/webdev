@@ -6,40 +6,46 @@ interface CartContextType {
   cartItems: Course[];
   addToCart: (course: Course) => void;
   removeFromCart: (id: number) => void;
+  price: number;
 }
 
 const CartContext = createContext<CartContextType>({
   cartItems: [],
   addToCart: () => {},
   removeFromCart: () => {},
+  price: 0,
 });
 
 import { ReactNode } from "react";
 
 const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState([] as Course[]);
+  const [price, setPrice] = useState(0);
   useEffect(() => {
     setCartItems(CartItems);
+    let curPrice = 0;
+    CartItems.forEach((item) => {
+      curPrice += item.price;
+    });
+    setPrice(curPrice);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addToCart = (course: Course) => {
-    console.log("Adding to cart", course);
-    console.log(CartItems);
     const item = CartItems.find((itemn: Course) => itemn.id === course.id);
     if (item) return;
     setCartItems([...cartItems, course]);
-    console.log("New List", cartItems);
+    setPrice(price + course.price);
   };
 
   const removeFromCart = (id: number) => {
-    console.log("Removing from cart", id);
     const newCartItems = cartItems.filter((item) => item.id !== id);
+    setPrice(price - cartItems.find((item) => item.id === id)!.price);
     setCartItems(newCartItems);
-    console.log("New List", newCartItems);
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart }}>
+    <CartContext.Provider
+      value={{ cartItems, addToCart, removeFromCart, price }}>
       {children}
     </CartContext.Provider>
   );

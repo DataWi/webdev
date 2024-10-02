@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import Courses from "../../../../../assets/course.json";
-import { redirect, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Course } from "../../../../courses";
 import { Col, Container, Row, Stack } from "react-bootstrap";
 import LectureList from "@/components/courses/lectures";
+import { useUser } from "@/components/users/singleUserContext";
 
 export default function Home() {
   const pathName = usePathname()!;
   const courseId = typeof pathName === "string" ? pathName.split("/")[4] : "";
   const [course, setCourse] = useState({} as Course);
+  const router = useRouter();
+  const { findUser } = useUser();
 
   useEffect(() => {
+    findUser();
     if (!courseId) return;
     const course = Courses.find((course) => course.id === Number(courseId));
-    if (!course) redirect("/404");
+    if (!course) return router.push("/404");
     setCourse(course);
   }, [courseId]);
 

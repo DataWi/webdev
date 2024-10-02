@@ -1,31 +1,51 @@
-import { redirect, usePathname } from "next/navigation";
-import Users from "../../../assets/users.json";
 import { useEffect, useState } from "react";
-import { User } from "@/components/users/usersList";
-import { Container, Form } from "react-bootstrap";
+import { Button, Col, Container, Modal, Row, Spinner } from "react-bootstrap";
+import PurchaseList from "@/components/courses/purchase";
+import AuthForm from "@/components/auth/auth-form";
+import { useUser } from "@/components/users/singleUserContext";
 
 export default function Home() {
-  console.log("RENDERING");
-  const [user, setUser] = useState({} as User);
-  const pathname = usePathname()!;
+  const { user, findUser, isLoading } = useUser();
+  const [show, setShow] = useState(false);
 
-  const userId = typeof pathname === "string" ? pathname.split("/")[2] : "";
+  const handleSubmit = () => setShow(false);
+  const handleShow = () => setShow(true);
+  const handleClose = () => setShow(false);
 
   useEffect(() => {
-    if (!userId) return;
-    const user = Users.find((user) => user.id === Number(userId));
-    if (!user) redirect("/404");
-    setUser(user);
-  }, [userId]);
+    if (!user) {
+      findUser();
+      return;
+    }
+  }, [isLoading, user]);
 
   return (
-    <Container className='mt-2'>
-      <Form>
-        <h1>Edit Data</h1>
-        <Form.Control value={user.name} />
-        <Form.Control value={user.email} />
-        {/* <Form.Control value={user.admin} /> */}
-      </Form>
+    <Container>
+      <Row className='justify-content-md-center mt-5'>
+        <Col xs={12} md={6}>
+          <h1>Account Information</h1>
+          <Button variant='outline-primary' onClick={() => handleShow()}>
+            Show / Edit
+          </Button>
+
+          <Modal show={show} onHide={handleClose}>
+            <AuthForm inModal={true} />
+          </Modal>
+        </Col>
+      </Row>
+      <hr />
+      <Row className='justify-content-md-center mt-5'>
+        <Col xs={12} md={6}>
+          <h1>Purchases</h1>
+          {!isLoading && user ? (
+            <PurchaseList purchaseIds={user.purchaseIds} />
+          ) : (
+            <Spinner animation='border' role='status'>
+              <span className='visually-hidden'>Loading...</span>
+            </Spinner>
+          )}
+        </Col>
+      </Row>
     </Container>
   );
 }

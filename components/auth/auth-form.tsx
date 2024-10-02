@@ -8,6 +8,7 @@ import {
   Container,
   FloatingLabel,
   Form,
+  Modal,
   Row,
 } from "react-bootstrap";
 
@@ -29,10 +30,13 @@ async function createUser(email: string, password: string) {
   return data;
 }
 
-export default function AuthForm() {
+export default function AuthForm({ inModal }: { inModal: boolean }) {
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
+  const layoutClasses = !inModal
+    ? "justify-content-md-center mt-5"
+    : "justify-content-center";
 
   const [isLogin, setIsLogin] = useState(true);
   const router = useRouter();
@@ -76,69 +80,100 @@ export default function AuthForm() {
 
   return (
     <Container>
-      <Row className='justify-content-md-center mt-5'>
-        <Col xs={12} md={6}>
-          <h1>{isLogin ? "Login" : "Sign Up"}</h1>
+      <Row className={layoutClasses}>
+        <Col xs={12} md={!inModal ? 6 : 10}>
+          {!inModal && <h1>{isLogin ? "Login" : "Sign Up"}</h1>}
           <Form onSubmit={submitHandler}>
-            <Form.Group>
-              <FloatingLabel
-                controlId='floatingEmail'
-                label='Email Address'
-                className='mb-3'>
-                <Form.Control
-                  type='email'
-                  placeholder='Email Address'
-                  id='email'
-                  required
-                  ref={emailInputRef}
-                />
-              </FloatingLabel>
-            </Form.Group>
-            <Form.Group>
-              <FloatingLabel
-                controlId='floatingPassword'
-                label='Password'
-                className='mb-3'>
-                <Form.Control
-                  type='password'
-                  placeholder='Password'
-                  id='password'
-                  required
-                  ref={passwordInputRef}
-                />
-              </FloatingLabel>
-            </Form.Group>
-            {!isLogin && (
+            <WrapInModal inModal={inModal} handleSubmit={submitHandler}>
               <Form.Group>
                 <FloatingLabel
-                  controlId='floatingPasswordConfirm'
-                  label='Confirm Password'
+                  controlId='floatingEmail'
+                  label='Email Address'
                   className='mb-3'>
                   <Form.Control
-                    type='password'
-                    placeholder='Confirm Password'
-                    id='confirmPassword'
+                    type='email'
+                    placeholder='Email Address'
+                    id='email'
                     required
-                    ref={confirmPasswordInputRef}
+                    ref={emailInputRef}
                   />
                 </FloatingLabel>
               </Form.Group>
+              <Form.Group>
+                <FloatingLabel
+                  controlId='floatingPassword'
+                  label='Password'
+                  className='mb-3'>
+                  <Form.Control
+                    type='password'
+                    placeholder='Password'
+                    id='password'
+                    required
+                    ref={passwordInputRef}
+                  />
+                </FloatingLabel>
+              </Form.Group>
+              {!isLogin && (
+                <Form.Group>
+                  <FloatingLabel
+                    controlId='floatingPasswordConfirm'
+                    label='Confirm Password'
+                    className='mb-3'>
+                    <Form.Control
+                      type='password'
+                      placeholder='Confirm Password'
+                      id='confirmPassword'
+                      required
+                      ref={confirmPasswordInputRef}
+                    />
+                  </FloatingLabel>
+                </Form.Group>
+              )}
+              <br />
+            </WrapInModal>
+            {!inModal && (
+              <ButtonGroup aria-label='Sign in'>
+                <Button className='btn-outline-primary' variant='lightdark'>
+                  {isLogin ? "Login" : !inModal && "Create Account"}
+                </Button>
+                {!inModal && (
+                  <Button
+                    variant='white'
+                    className='btn-outline-secondary'
+                    onClick={switchAuthModeHandler}>
+                    {isLogin
+                      ? "Create new account"
+                      : "Login with existing account"}
+                  </Button>
+                )}
+              </ButtonGroup>
             )}
-            <br />
-            <ButtonGroup aria-label='Sign in'>
-              <Button className='btn-outline-primary' variant='lightdark'>
-                {isLogin ? "Login" : "Create Account"}
-              </Button>
-              <Button
-                variant='white'
-                className='btn-outline-secondary'
-                onClick={switchAuthModeHandler}>
-                {isLogin ? "Create new account" : "Login with existing account"}
-              </Button>
-            </ButtonGroup>
           </Form>
         </Col>
       </Row>
     </Container>
   );
 }
+
+type WrapInModalProps = {
+  children: React.ReactNode;
+  handleSubmit: (event: FormEvent) => void;
+  inModal: boolean;
+};
+
+const WrapInModal = ({ children, inModal, handleSubmit }: WrapInModalProps) => {
+  if (!inModal) return <>{children}</>;
+  return (
+    <>
+      <Modal.Header closeButton>
+        <Modal.Title>Authenticate to continue</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>{children}</Modal.Body>
+      <Modal.Footer>
+        <Button variant='outline-primary' onClick={(e) => handleSubmit(e)}>
+          Authenticate
+        </Button>
+      </Modal.Footer>
+    </>
+  );
+};

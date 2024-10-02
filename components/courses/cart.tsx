@@ -1,5 +1,5 @@
 import { Course } from "@/pages/courses";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button, Container, Form, NavDropdown, Stack } from "react-bootstrap";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { useCart } from "./cartContext";
@@ -11,7 +11,7 @@ interface CartProps {
 
 export default function Cart({ name, ...props }: CartProps) {
   const [show, setShow] = useState(false);
-  const { cartItems, removeFromCart } = useCart()!;
+  const { cartItems, removeFromCart, price } = useCart()!;
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -20,7 +20,13 @@ export default function Cart({ name, ...props }: CartProps) {
       <NavDropdown.Item onClick={handleShow} className='me-2'>
         {name}
       </NavDropdown.Item>
-      <Offcanvas show={show} onHide={handleClose} {...props}>
+      <Offcanvas
+        style={{ overflow: "scroll" }}
+        scroll={true}
+        backdrop={false}
+        show={show}
+        onHide={handleClose}
+        {...props}>
         <Container>
           <Form>
             <Offcanvas.Header closeButton>
@@ -33,9 +39,15 @@ export default function Cart({ name, ...props }: CartProps) {
               </Stack>
             </Offcanvas.Body>
             <br />
-            <Button type='button' className='btn btn-primary'>
-              Checkout
-            </Button>
+            <Stack direction='horizontal'>
+              <h3>Total: {price} €</h3>
+              <Button
+                type='button'
+                variant='outline-primary'
+                className='ms-auto'>
+                Checkout
+              </Button>
+            </Stack>
           </Form>
         </Container>
       </Offcanvas>

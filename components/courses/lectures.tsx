@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import Lectures from "../../assets/lectures.json";
-import { Accordion, Container, Form, Stack } from "react-bootstrap";
+import {
+  Accordion,
+  Container,
+  Form,
+  ProgressBar,
+  Stack,
+} from "react-bootstrap";
 
 type Section = {
   sectionName: string;
@@ -11,6 +17,7 @@ type Section = {
 type LectureList = {
   courseId: number;
   lastOpened: number;
+  progress: number;
   sections: Section[];
 };
 
@@ -24,6 +31,7 @@ type Lecture = {
 export default function LectureList({ courseId }: { courseId: number }) {
   const [sections, setSections] = useState([] as Section[]);
   const [lastOpened, setLastOpened] = useState(0);
+  const [progress, setProgress] = useState(0);
 
   const handleChange = (sectionIndex: number, lectureIndex: number) => {
     const newSections = [...sections];
@@ -39,24 +47,31 @@ export default function LectureList({ courseId }: { courseId: number }) {
     if (!sectionList) return;
     setLastOpened(sectionList.lastOpened);
     setSections(sectionList.sections);
-  }, []);
+    setProgress(sectionList.progress * 100);
+  }, [courseId, progress]);
 
   return (
     <Container>
       <h3>Course Content</h3>
+      <ProgressBar
+        now={progress}
+        variant='info'
+        label={`${progress === 100 ? progress : ""}`}
+      />
       <hr />
       <Accordion defaultActiveKey={lastOpened.toString()}>
         <Form>
           {sections.map((section, sectionIndex) => (
             <Accordion.Item
               eventKey={sectionIndex.toString()}
-              key={sectionIndex}>
+              key={section.sectionName}>
               <Accordion.Header>{section.sectionName}</Accordion.Header>
               <Accordion.Body>
                 <Stack>
                   {section.lectures.map((lecture, lectureIndex) => (
                     <Lectureitem
                       lecture={lecture}
+                      key={lectureIndex}
                       handleChange={() =>
                         handleChange(sectionIndex, lectureIndex)
                       }
